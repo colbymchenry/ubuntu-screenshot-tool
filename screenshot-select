@@ -6,7 +6,7 @@ Hotkey: Super+Shift+S
 Captures a region of the screen, saves to ~/Screenshots/, and copies
 the image to the clipboard for pasting into any application.
 
-Dependencies: python3, python3-gi (GTK3), imagemagick, xclip
+Dependencies: python3, python3-gi (GTK3), maim, xclip
 All except xclip are pre-installed on Ubuntu.
 """
 
@@ -28,30 +28,32 @@ MIN_DRAG = 5
 
 
 def capture_screen():
-    """Capture full screen and a dimmed version using ImageMagick."""
-    tmp1_fd, tmp1 = tempfile.mkstemp(suffix=".png")
-    tmp2_fd, tmp2 = tempfile.mkstemp(suffix=".png")
-    os.close(tmp1_fd)
-    os.close(tmp2_fd)
+    """Capture full screen with maim and create dimmed version in-memory."""
+    tmp_fd, tmp = tempfile.mkstemp(suffix=".png")
+    os.close(tmp_fd)
     try:
-        subprocess.run(["import", "-window", "root", tmp1],
+        subprocess.run(["maim", tmp],
                        check=True, timeout=5,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        subprocess.run(["convert", tmp1, "-modulate", "70", tmp2],
-                       check=True, timeout=5,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        full = GdkPixbuf.Pixbuf.new_from_file(tmp1)
-        dimmed = GdkPixbuf.Pixbuf.new_from_file(tmp2)
+        full = GdkPixbuf.Pixbuf.new_from_file(tmp)
+
+        # Create dimmed version in-memory by compositing a semi-transparent black overlay
+        dimmed = full.copy()
+        black = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, True, 8,
+                                     full.get_width(), full.get_height())
+        black.fill(0x00000099)
+        black.composite(dimmed, 0, 0, full.get_width(), full.get_height(),
+                        0, 0, 1.0, 1.0, GdkPixbuf.InterpType.NEAREST, 180)
+
         return full, dimmed
     except Exception as e:
         print(f"Failed to capture screen: {e}", file=sys.stderr)
         sys.exit(1)
     finally:
-        for f in (tmp1, tmp2):
-            try:
-                os.unlink(f)
-            except OSError:
-                pass
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
 
 
 class ScreenshotOverlay(Gtk.Window):

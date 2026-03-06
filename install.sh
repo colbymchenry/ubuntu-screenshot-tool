@@ -4,8 +4,8 @@ set -e
 echo "Installing ubuntu-screenshot-tool..."
 
 # Install dependencies
-echo "Installing dependencies (xclip, imagemagick)..."
-sudo apt install -y xclip imagemagick
+echo "Installing dependencies (xclip, maim)..."
+sudo apt install -y xclip maim
 
 # Install the script
 mkdir -p ~/.local/bin

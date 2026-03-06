@@ -13,7 +13,7 @@ Windows-style region select screenshot tool for Ubuntu. Press **Super+Shift+S**,
 - **Escape to cancel**
 - **Crosshair cursor** during selection
 - **Multi-monitor safe** (captures the full virtual screen)
-- **Minimal dependencies** — uses Python3/GTK3 and ImageMagick (pre-installed on Ubuntu), only needs `xclip` installed
+- **Minimal dependencies** — uses Python3/GTK3, `maim` for fast screen capture, and `xclip`
 
 ## Install
 
@@ -24,7 +24,7 @@ bash install.sh
 ```
 
 This will:
-1. Install `xclip` and `imagemagick` (if not already installed)
+1. Install `xclip` and `maim` (if not already installed)
 2. Copy the script to `~/.local/bin/screenshot-select`
 3. Bind **Super+Shift+S** in GNOME settings
 
@@ -52,7 +52,7 @@ Press **Escape** to cancel.
 - Ubuntu (or any GNOME-based Linux distro)
 - Python 3 (pre-installed)
 - GTK 3 / PyGObject (pre-installed: `python3-gi`)
-- ImageMagick (pre-installed: `import`, `convert`)
+- maim (installed automatically by `install.sh`)
 - xclip (installed automatically by `install.sh`)
 
 ## License
